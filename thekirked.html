@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Kirked</title>
+    <style>
+        /* Base Styling */
+        body {
+            margin: 0;
+            padding: 40px; 
+            background-color: #000000;
+            width: 100vw;
+            height: 100vh;
+            color: white;
+            font-family: serif;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        /* Container to keep elements aligned */
+        .container {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        /* Trigger Button Styling */
+        .menu-trigger {
+            display: flex;
+            align-items: center;
+            background: none;
+            border: none;
+            color: white;
+            font-family: serif;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            margin-bottom: 20px;
+            transition: opacity 0.2s;
+            outline: none;
+        }
+
+        .menu-trigger:hover {
+            opacity: 0.7;
+        }
+
+        .arrow-icon {
+            width: 24px;
+            height: 24px;
+            margin-left: 10px;
+            fill: white;
+            transition: transform 0.3s ease;
+        }
+
+        .arrow-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        /* Image Slide-in Panel - Positioned Under Text */
+        .image-panel {
+            max-width: 350px; /* Adjust based on preferred image width */
+            max-height: 0;   /* Collapsed by default */
+            overflow: hidden;
+            transition: max-height 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+            opacity: 0;
+        }
+
+        .image-panel.open {
+            max-height: 800px; /* Large enough to fit image content */
+            opacity: 1;
+        }
+
+        /* The Image itself */
+        .sliding-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            border: 1px solid #222; /* Subtle border for the image edge */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Main Trigger -->
+        <button class="menu-trigger" onclick="toggleImage()">
+            the kirked
+            <svg class="arrow-icon" id="arrow" viewBox="0 0 24 24">
+                <path d="M7 10l5 5 5-5z"/>
+            </svg>
+        </button>
+
+        <!-- Sliding Image Panel directly under text -->
+        <div id="imagePanel" class="image-panel">
+            <img src="https://i.imgur.com/bnCgl1j.png" alt="The Kirked" class="sliding-image">
+        </div>
+    </div>
+
+    <script>
+        function toggleImage() {
+            const panel = document.getElementById('imagePanel');
+            const arrow = document.getElementById('arrow');
+            
+            panel.classList.toggle('open');
+            arrow.classList.toggle('rotated');
+        }
+    </script>
+</body>
+</html>
