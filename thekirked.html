@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Kirked</title>
+    <title>thekirked</title>
     <style>
         /* Base Styling */
         body {
@@ -14,17 +14,105 @@
             height: 100vh;
             color: white;
             font-family: serif;
-            overflow-x: hidden; /* Prevent horizontal scroll */
-        }
-
-        /* Container to keep elements aligned */
-        .container {
-            display: inline-flex;
+            overflow-x: hidden;
+            display: flex;
             flex-direction: column;
             align-items: flex-start;
         }
 
-        /* Trigger Button Styling */
+        /* Password Overlay */
+        #passwordScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 5px 10px;
+            margin-bottom: 20px;
+            width: 280px;
+            transition: border-color 0.3s;
+        }
+
+        .password-container:focus-within {
+            border-color: #666;
+        }
+
+        #passwordScreen input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-family: serif;
+            font-size: 1.1rem;
+            padding: 10px;
+            outline: none;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .icon-btn:hover {
+            opacity: 1;
+        }
+
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        #passwordScreen .submit-btn {
+            background: white;
+            color: black;
+            border: none;
+            padding: 10px 30px;
+            font-family: serif;
+            cursor: pointer;
+            text-transform: lowercase;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        #errorMsg {
+            color: #ff4444;
+            font-size: 0.8rem;
+            margin-top: 15px;
+            height: 1rem;
+        }
+
+        /* Main Content Container */
+        .container {
+            display: none; 
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        /* Tier 1 Trigger */
         .menu-trigger {
             display: flex;
             align-items: center;
@@ -35,13 +123,38 @@
             font-size: 1.5rem;
             cursor: pointer;
             padding: 0;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             transition: opacity 0.2s;
             outline: none;
         }
 
         .menu-trigger:hover {
             opacity: 0.7;
+        }
+
+        /* Tier 2 Triggers (Sub-menu) */
+        .sub-menu {
+            display: none; /* Hidden until "the kirked" is clicked */
+            flex-direction: column;
+            align-items: flex-start;
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .sub-trigger {
+            background: none;
+            border: none;
+            color: #888;
+            font-family: serif;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px 0;
+            transition: color 0.3s;
+            outline: none;
+        }
+
+        .sub-trigger:hover {
+            color: white;
         }
 
         .arrow-icon {
@@ -56,53 +169,123 @@
             transform: rotate(180deg);
         }
 
-        /* Image Slide-in Panel - Positioned Under Text */
+        /* Image Slide-in Panels */
         .image-panel {
-            max-width: 350px; /* Adjust based on preferred image width */
-            max-height: 0;   /* Collapsed by default */
+            max-width: 350px;
+            max-height: 0;
             overflow: hidden;
             transition: max-height 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
             opacity: 0;
         }
 
         .image-panel.open {
-            max-height: 800px; /* Large enough to fit image content */
+            max-height: 800px;
             opacity: 1;
         }
 
-        /* The Image itself */
         .sliding-image {
             width: 100%;
             height: auto;
             display: block;
-            border: 1px solid #222; /* Subtle border for the image edge */
+            border: 1px solid #222;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- Main Trigger -->
-        <button class="menu-trigger" onclick="toggleImage()">
+    <!-- Password Protection Screen -->
+    <div id="passwordScreen">
+        <div class="password-container">
+            <input type="password" id="passInput" placeholder="enter password" onkeydown="if(event.key==='Enter') checkPassword()">
+            <button class="icon-btn" onclick="togglePassword()" title="Toggle Password Visibility">
+                <svg id="eyeIcon" viewBox="0 0 24 24">
+                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                </svg>
+            </button>
+        </div>
+        <button class="submit-btn" onclick="checkPassword()">submit</button>
+        <div id="errorMsg"></div>
+    </div>
+
+    <div class="container" id="mainContent">
+        <!-- Tier 1 -->
+        <button class="menu-trigger" onclick="toggleSubMenu()">
             the kirked
             <svg class="arrow-icon" id="arrow" viewBox="0 0 24 24">
                 <path d="M7 10l5 5 5-5z"/>
             </svg>
         </button>
 
-        <!-- Sliding Image Panel directly under text -->
-        <div id="imagePanel" class="image-panel">
-            <img src="https://i.imgur.com/bnCgl1j.png" alt="The Kirked" class="sliding-image">
+        <!-- Tier 2 Sub-menu -->
+        <div id="subMenu" class="sub-menu">
+            <button class="sub-trigger" onclick="toggleImage('lynxImage')">lynx</button>
+            <button class="sub-trigger" onclick="toggleImage('carterImage')">carter</button>
+        </div>
+
+        <!-- Sliding Image Panels -->
+        <div id="lynxImage" class="image-panel">
+            <img src="https://i.imgur.com/bnCgl1j.png" alt="Lynx" class="sliding-image">
+        </div>
+
+        <div id="carterImage" class="image-panel">
+            <img src="https://i.imgur.com/VEMFUiQ.jpeg" alt="Carter" class="sliding-image">
         </div>
     </div>
 
     <script>
-        function toggleImage() {
-            const panel = document.getElementById('imagePanel');
+        function togglePassword() {
+            const input = document.getElementById('passInput');
+            const eyeIcon = document.getElementById('eyeIcon');
+            if (input.type === "password") {
+                input.type = "text";
+                eyeIcon.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.82l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.74-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
+            } else {
+                input.type = "password";
+                eyeIcon.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
+            }
+        }
+
+        function checkPassword() {
+            const input = document.getElementById('passInput').value;
+            const error = document.getElementById('errorMsg');
+            const screen = document.getElementById('passwordScreen');
+            const content = document.getElementById('mainContent');
+
+            if (input === "epsteinisland") {
+                screen.style.display = "none";
+                content.style.display = "flex";
+            } else {
+                error.innerText = "incorrect password";
+                document.getElementById('passInput').value = "";
+            }
+        }
+
+        function toggleSubMenu() {
+            const subMenu = document.getElementById('subMenu');
             const arrow = document.getElementById('arrow');
             
+            if (subMenu.style.display === "flex") {
+                subMenu.style.display = "none";
+                arrow.classList.remove('rotated');
+                // Close all images when hiding sub-menu
+                document.getElementById('lynxImage').classList.remove('open');
+                document.getElementById('carterImage').classList.remove('open');
+            } else {
+                subMenu.style.display = "flex";
+                arrow.classList.add('rotated');
+            }
+        }
+
+        function toggleImage(id) {
+            const panel = document.getElementById(id);
+            const otherId = id === 'lynxImage' ? 'carterImage' : 'lynxImage';
+            const otherPanel = document.getElementById(otherId);
+            
+            // Close other panel if open
+            otherPanel.classList.remove('open');
+            // Toggle current panel
             panel.classList.toggle('open');
-            arrow.classList.toggle('rotated');
         }
     </script>
 </body>
